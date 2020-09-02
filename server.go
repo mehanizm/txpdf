@@ -14,7 +14,7 @@ import (
 
 	"github.com/Masterminds/sprig"
 	wk "github.com/SebastiaanKlippert/go-wkhtmltopdf"
-	"github.com/gin-contrib/zap"
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/txn2/service/ginack"
 	"go.uber.org/zap"
@@ -36,6 +36,8 @@ type Options struct {
 	NoBackground            bool              `json:"no_background"`
 	JavascriptDelay         uint              `json:"javascript_delay"`
 	DisableJavascript       bool              `json:"disable_javascript"`
+	Username                string            `json:"username"`
+	Password                string            `json:"password"`
 }
 
 // Cfg
@@ -200,6 +202,8 @@ func main() {
 				p.JavascriptDelay.Set(cfg.Options.JavascriptDelay)
 				p.NoBackground.Set(cfg.Options.NoBackground)
 				p.DisableJavascript.Set(cfg.Options.NoBackground)
+				p.Username.Set(cfg.Options.Username)
+				p.Password.Set(cfg.Options.Password)
 
 				for k, v := range cfg.Options.CustomHeaders {
 					logger.Info("Adding custom header to page: k: " + k + " v: " + v)
