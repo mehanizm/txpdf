@@ -1,25 +1,17 @@
-FROM golang:1.10.2-alpine3.7 AS builder
+FROM golang:alpine AS builder
 
-RUN apk update \
- && apk add git
+# Install git + SSL ca certificates.
+# Git is required for fetching the dependencies.
+# Ca-certificates is required to call HTTPS endpoints.
+RUN apk update && apk add --no-cache git ca-certificates tzdata=2020a-r0 && update-ca-certificates
 
-RUN mkdir -p /go/src \
- && mkdir -p /go/bin \
- && mkdir -p /go/pkg
+WORKDIR $GOPATH/src/github.com/txn2/txpdf
+COPY . .
 
-ENV GOPATH=/go
-ENV PATH=$GOPATH/bin:$PATH
+RUN go mod download
+RUN go mod verify
 
-RUN mkdir -p $GOPATH/src/app
-ADD . $GOPATH/src/app
-
-ADD . /go/src
-
-WORKDIR $GOPATH/src/app
-
-RUN go get .
-RUN go get github.com/json-iterator/go
-RUN CGO_ENABLED=0 go build -tags=jsoniter -a -installsuffix cgo -o /go/bin/server .
+RUN CGO_ENABLED=0 go build -a -installsuffix cgo -o /go/bin/server .
 
 FROM txn2/n2pdf
 
